@@ -75,7 +75,7 @@ def register_error_handlers(app):
             return jsonify({'status': 'error', 'message': '文件大小超过限制'}), 413
         return render_template('errors/413.html'), 413
 
-# 用户加载器
+# 用户加载��
 @login_manager.user_loader
 def load_user(user_id):
     from .models import User

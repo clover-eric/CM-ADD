@@ -118,7 +118,7 @@ EOF
 
 # 检查执行结果
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}数据库初始化成��！${NC}"
+    echo -e "${GREEN}数据库初始化成功！${NC}"
 else
     echo -e "${RED}数据库初始化失败！${NC}"
     exit 1

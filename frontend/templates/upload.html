@@ -53,6 +53,100 @@
                         </button>
                     </div>
                 </form>
+
+                <div class="card mt-4">
+                    <div class="card-body">
+                        <h3 class="card-title">API 密钥管理</h3>
+                        <div class="mb-3">
+                            <div class="d-flex align-items-center">
+                                <div class="flex-grow-1">
+                                    {% if current_user.api_key %}
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="apiKey" 
+                                               value="{{ current_user.api_key }}" readonly>
+                                        <button class="btn btn-outline-secondary" type="button" 
+                                                onclick="copyApiKey()">
+                                            <i class="fas fa-copy"></i>
+                                        </button>
+                                    </div>
+                                    <small class="text-muted">
+                                        生成时间：{{ current_user.api_key_created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                                    </small>
+                                    {% else %}
+                                    <p class="text-muted mb-0">尚未生成API密钥</p>
+                                    {% endif %}
+                                </div>
+                                <button class="btn btn-primary ms-3" onclick="generateApiKey()">
+                                    {{ '重新生成' if current_user.api_key else '生成密钥' }}
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <h4>API 接入说明</h4>
+                            <div class="accordion" id="apiDocs">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button" type="button" data-bs-toggle="collapse" 
+                                                data-bs-target="#pythonExample">
+                                            Python 示例
+                                        </button>
+                                    </h2>
+                                    <div id="pythonExample" class="accordion-collapse collapse show">
+                                        <div class="accordion-body">
+                                            <pre><code class="language-python">
+import requests
+
+api_key = 'your_api_key_here'
+file_path = 'example.csv'
+
+url = '{{ request.host_url }}api/upload'
+headers = {'X-API-Key': api_key}
+
+with open(file_path, 'rb') as f:
+    files = {'file': f}
+    response = requests.post(url, headers=headers, files=files)
+
+print(response.json())
+                                            </code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" 
+                                                data-bs-toggle="collapse" data-bs-target="#jsExample">
+                                            JavaScript 示例
+                                        </button>
+                                    </h2>
+                                    <div id="jsExample" class="accordion-collapse collapse">
+                                        <div class="accordion-body">
+                                            <pre><code class="language-javascript">
+const apiKey = 'your_api_key_here';
+const file = document.querySelector('input[type="file"]').files[0];
+
+const formData = new FormData();
+formData.append('file', file);
+
+fetch('{{ request.host_url }}api/upload', {
+    method: 'POST',
+    headers: {
+        'X-API-Key': apiKey
+    },
+    body: formData
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+                                            </code></pre>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

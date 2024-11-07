@@ -85,17 +85,21 @@ docker-compose up -d
 echo -e "${YELLOW}等待服务就绪...${NC}"
 attempt=0
 max_attempts=30
-until curl -s http://localhost:5000/health > /dev/null || [ $attempt -eq $max_attempts ]; do
+
+until curl -s http://localhost:6789/health > /dev/null || [ $attempt -eq $max_attempts ]
+do
     attempt=$((attempt + 1))
     echo -e "${YELLOW}等待服务启动 ($attempt/$max_attempts)...${NC}"
-    sleep 2
+    
+    # 检查容器状态
+    if ! docker-compose ps | grep -q "Up"; then
+        echo -e "${RED}容器启动失败，查看详细日志：${NC}"
+        docker-compose logs
+        exit 1
+    fi
+    
+    sleep 5
 done
-
-if [ $attempt -eq $max_attempts ]; then
-    echo -e "${RED}服务启动超时，请检查日志${NC}"
-    docker-compose logs
-    exit 1
-fi
 
 # 显示部署信息
 echo -e "${GREEN}部署完成！${NC}"
