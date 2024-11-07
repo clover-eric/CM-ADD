@@ -87,7 +87,7 @@ chmod +x deploy.sh
 
   ```
 
-4. 访问 http://localhost:5000 即可使用系统
+4. 访问 http://localhost:6789 即可使用系统
 
 ### 开发环境配置
 

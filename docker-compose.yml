@@ -22,7 +22,7 @@ services:
     build: .
     restart: always
     ports:
-      - "5000:5000"
+      - "6789:6789"
     volumes:
       - ./uploads:/app/uploads
     environment:

@@ -27,9 +27,9 @@ ENV PYTHONUNBUFFERED=1
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
 
-EXPOSE 5000
+EXPOSE 6789
 
 HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
+    CMD curl -f http://localhost:6789/health || exit 1
 
 ENTRYPOINT ["docker-entrypoint.sh"] 
