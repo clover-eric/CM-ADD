@@ -55,6 +55,12 @@ chmod 777 uploads
 
 # 启动服务
 echo -e "${YELLOW}启动服务...${NC}"
+if ! docker-compose pull; then
+    echo -e "${RED}拉取镜像失败，尝试使用备用镜像源...${NC}"
+    # 如果官方镜像拉取失败，尝试使用阿里云镜像
+    sed -i 's|image: mysql:8.0|image: registry.cn-hangzhou.aliyuncs.com/mysql/mysql:8.0|g' docker-compose.yml
+    docker-compose pull
+fi
 docker-compose up --build -d
 
 # 等待服务就绪
