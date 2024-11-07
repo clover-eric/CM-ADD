@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block title %}页面未找到 - 网络文件柜{% endblock %}
+
+{% block content %}
+<div class="container text-center py-5">
+    <h1 class="display-1">404</h1>
+    <p class="lead">抱歉，您访问的页面不存在</p>
+    <a href="{{ url_for('main.dashboard') }}" class="btn btn-primary">
+        <i class="fas fa-home me-2"></i>返回首页
+    </a>
+</div>
+{% endblock %} 

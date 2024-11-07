@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}用户管理 - 网络文件柜{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="mb-0">用户管理</h3>
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>返回仪表板
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>用户名</th>
+                            <th>邮箱</th>
+                            <th>注册时间</th>
+                            <th>最后登录</th>
+                            <th>状态</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for user in users %}
+                        <tr>
+                            <td>{{ user.id }}</td>
+                            <td>{{ user.username }}</td>
+                            <td>{{ user.email }}</td>
+                            <td>{{ user.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>{{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else '从未登录' }}</td>
+                            <td>
+                                <span class="badge {% if user.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ '激活' if user.is_active else '禁用' }}
+                                </span>
+                            </td>
+                            <td>
+                                <button class="btn btn-sm btn-primary" 
+                                        onclick="editUser('{{ user.id }}')"
+                                        {% if user.username == 'admin' %}disabled{% endif %}>
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn btn-sm btn-danger" 
+                                        onclick="confirmDeleteUser('{{ user.id }}', '{{ user.username }}')"
+                                        {% if user.username == 'admin' %}disabled{% endif %}>
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 编辑用户模态框 -->
+<div class="modal fade" id="editUserModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">编辑用户</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="userId">
+                    <div class="mb-3">
+                        <label class="form-label">用户名</label>
+                        <input type="text" class="form-control" id="editUsername" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">邮箱</label>
+                        <input type="email" class="form-control" id="editEmail" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">新密码（留空保持不变）</label>
+                        <input type="password" class="form-control" id="editPassword">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editIsActive">
+                        <label class="form-check-label">账号激活</label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-primary" onclick="updateUser()">保存</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %} 

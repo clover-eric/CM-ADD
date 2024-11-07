@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}管理员仪表板 - 网络文件柜{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">用户总数</h5>
+                    <p class="card-text display-4">{{ total_users }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">文件总数</h5>
+                    <p class="card-text display-4">{{ total_files }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">存储空间使用</h5>
+                    <p class="card-text display-4">{{ format_file_size(storage_used) }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">快速操作</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex gap-3">
+                        <a href="{{ url_for('admin.users') }}" class="btn btn-primary">
+                            <i class="fas fa-users me-2"></i>用户管理
+                        </a>
+                        <button class="btn btn-danger" onclick="confirmSystemReset()">
+                            <i class="fas fa-redo-alt me-2"></i>系统重置
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 系统重置确认模态框 -->
+<div class="modal fade" id="resetConfirmModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">警告：系统重置</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    此操作将清空所有用户数据和文件，并恢复系统至初始状态。此操作不可撤销！
+                </div>
+                <p>请输入 "RESET" 确认操作：</p>
+                <input type="text" class="form-control" id="resetConfirmInput">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                <button type="button" class="btn btn-danger" onclick="executeSystemReset()">确认重置</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{{ url_for('static', filename='js/admin.js') }}"></script>
+{% endblock %} 

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}上传文件 - 网络文件柜{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title text-center mb-4">
+                    <i class="fas fa-upload me-2"></i>上传文件
+                </h2>
+                
+                <form method="POST" action="{{ url_for('main.upload') }}" enctype="multipart/form-data" 
+                      id="uploadForm" class="upload-form">
+                    {{ form.hidden_tag() }}
+                    
+                    <div class="upload-zone mb-4" id="dropZone">
+                        <div class="text-center p-5">
+                            <i class="fas fa-cloud-upload-alt fa-3x mb-3"></i>
+                            <h5>拖放文件到这里或点击选择文件</h5>
+                            <p class="text-muted">支持的文件格式：CSV, TXT</p>
+                            <input type="file" class="form-control" id="file" name="file" 
+                                   accept=".csv,.txt" style="display: none;" required>
+                            <button type="button" class="btn btn-outline-primary mt-3" 
+                                    onclick="document.getElementById('file').click()">
+                                选择文件
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="file-preview" class="mb-4" style="display: none;">
+                        <div class="card">
+                            <div class="card-body">
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-file-alt fa-2x me-3"></i>
+                                    <div class="flex-grow-1">
+                                        <h6 class="mb-1" id="fileName"></h6>
+                                        <small class="text-muted" id="fileSize"></small>
+                                    </div>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" 
+                                            onclick="clearFileSelection()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary" id="uploadButton" disabled>
+                            <i class="fas fa-upload me-2"></i>上传文件
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('file');
+const filePreview = document.getElementById('file-preview');
+const fileName = document.getElementById('fileName');
+const fileSize = document.getElementById('fileSize');
+const uploadButton = document.getElementById('uploadButton');
+
+// 拖放处理
+dropZone.addEventListener('dragover', handleDragOver);
+dropZone.addEventListener('drop', handleDrop);
+
+// 文件选择处理
+fileInput.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        showFilePreview(file);
+    }
+});
+
+function showFilePreview(file) {
+    const validTypes = ['.csv', '.txt'];
+    const fileExt = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    
+    if (!validTypes.includes(fileExt)) {
+        showAlert('只支持CSV和TXT格式的文件', 'danger');
+        clearFileSelection();
+        return;
+    }
+
+    fileName.textContent = file.name;
+    fileSize.textContent = formatFileSize(file.size);
+    filePreview.style.display = 'block';
+    dropZone.style.display = 'none';
+    uploadButton.disabled = false;
+}
+
+function clearFileSelection() {
+    fileInput.value = '';
+    filePreview.style.display = 'none';
+    dropZone.style.display = 'block';
+    uploadButton.disabled = true;
+}
+
+function showAlert(message, type) {
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${type} alert-dismissible fade show`;
+    alertDiv.innerHTML = `
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.querySelector('.card-body').insertBefore(alertDiv, document.querySelector('h2'));
+    
+    setTimeout(() => {
+        alertDiv.remove();
+    }, 3000);
+}
+</script>
+{% endblock %} 
