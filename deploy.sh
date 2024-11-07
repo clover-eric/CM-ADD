@@ -11,6 +11,12 @@ set -e
 trap 'last_command=$current_command; current_command=$BASH_COMMAND' DEBUG
 trap 'echo -e "${RED}错误: 命令 ${last_command} 失败${NC}"' ERR
 
+# 检查是否为root用户
+if [ "$EUID" -ne 0 ]; then 
+    echo -e "${RED}请使用sudo或root权限运行此脚本${NC}"
+    exit 1
+fi
+
 # 检查系统要求
 echo -e "${YELLOW}检查系统要求...${NC}"
 if ! command -v docker &> /dev/null; then
@@ -30,7 +36,7 @@ fi
 echo -e "${YELLOW}配置镜像加速...${NC}"
 DOCKER_CONFIG_DIR="/etc/docker"
 mkdir -p $DOCKER_CONFIG_DIR
-cat > $DOCKER_CONFIG_DIR/daemon.json <<EOF
+cat > $DOCKER_CONFIG_DIR/daemon.json <<-EOF
 {
     "registry-mirrors": [
         "https://mirror.ccs.tencentyun.com",
@@ -40,7 +46,17 @@ cat > $DOCKER_CONFIG_DIR/daemon.json <<EOF
     ]
 }
 EOF
-systemctl restart docker
+
+# 重启Docker服务
+systemctl restart docker || {
+    echo -e "${RED}重启Docker服务失败，请手动重启${NC}"
+    exit 1
+}
+
+# 创建项目目录
+PROJECT_DIR="/opt/cm-add"
+mkdir -p $PROJECT_DIR
+cd $PROJECT_DIR
 
 # 克隆项目代码
 echo -e "${YELLOW}克隆项目代码...${NC}"
@@ -55,7 +71,7 @@ fi
 # 生成环境配置
 echo -e "${YELLOW}生成环境配置...${NC}"
 if [ ! -f ".env" ]; then
-    cat > .env <<EOF
+    cat > .env <<-EOF
 DB_NAME=filecabinet
 DB_USER=dbuser
 DB_PASSWORD=$(openssl rand -hex 16)
@@ -65,9 +81,10 @@ MAX_CONTENT_LENGTH=16777216
 EOF
 fi
 
-# 创建必要的目录
+# 创建必要的目录并设置权限
 echo -e "${YELLOW}创建必要的目录...${NC}"
 mkdir -p uploads
+chown -R 1000:1000 uploads
 
 # 预拉取基础镜像
 echo -e "${YELLOW}预拉取基础镜像...${NC}"
@@ -107,9 +124,3 @@ echo -e "${GREEN}访问地址: http://localhost:6789${NC}"
 echo -e "${GREEN}默认管理员账号: admin${NC}"
 echo -e "${GREEN}默认管理员密码: admin123${NC}"
 echo -e "${YELLOW}请及时修改默认密码！${NC}"
-
-# 显示系统信息
-echo -e "\n${YELLOW}系统信息:${NC}"
-docker-compose ps
-echo -e "\n${YELLOW}如需查看日志，请运行:${NC}"
-echo "docker-compose logs -f" 
