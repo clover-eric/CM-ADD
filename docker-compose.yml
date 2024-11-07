@@ -19,7 +19,7 @@ services:
       retries: 20
       start_period: 10s
     ports:
-      - "3306:3306"
+      - "13306:3306"
     command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
   web:
