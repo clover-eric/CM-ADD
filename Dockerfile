@@ -1,12 +1,12 @@
-FROM registry.cn-hangzhou.aliyuncs.com/python/python:3.9-slim
+FROM python:3.9-slim
 
 ENV TZ=Asia/Shanghai
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
 WORKDIR /app
 
-RUN pip config set global.index-url https://mirrors.aliyun.com/pypi/simple/ \
-    && pip config set install.trusted-host mirrors.aliyun.com
+RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple/ \
+    && pip config set install.trusted-host pypi.tuna.tsinghua.edu.cn
 
 RUN apt-get update && apt-get install -y \
     default-libmysqlclient-dev \
