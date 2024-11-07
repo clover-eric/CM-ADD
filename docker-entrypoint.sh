@@ -3,7 +3,7 @@ set -e
 
 # 等待数据库就绪
 echo "Waiting for database..."
-max_retries=30
+max_retries=60
 count=0
 
 until MYSQL_PWD=$DB_PASSWORD mysql -h db -u $DB_USER -e "SELECT 1" $DB_NAME > /dev/null 2>&1
@@ -14,7 +14,7 @@ do
         echo "Error: Timed out waiting for database"
         exit 1
     fi
-    sleep 2
+    sleep 5
 done
 
 echo "Database is up - executing command"
