@@ -12,9 +12,9 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./database/init_db.sh:/docker-entrypoint-initdb.d/init_db.sh
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_PASSWORD"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${DB_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -25,6 +25,8 @@ services:
       - --collation-server=utf8mb4_unicode_ci
       - --skip-name-resolve
       - --max-connections=1000
+    ports:
+      - "3306"
 
   web:
     build: .
@@ -42,6 +44,7 @@ services:
       - FLASK_ENV=${FLASK_ENV}
       - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}
       - TZ=Asia/Shanghai
+      - PYTHONUNBUFFERED=1
     depends_on:
       db:
         condition: service_healthy
