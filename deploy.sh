@@ -82,9 +82,29 @@ EOF
 fi
 
 # 创建必要的目录并设置权限
-echo -e "${YELLOW}创建必要的目录...${NC}"
+echo -e "${YELLOW}创建必要的目录和设置权限...${NC}"
 mkdir -p uploads
-chown -R 1000:1000 uploads
+mkdir -p database
+chmod -R 777 uploads
+chmod -R 777 database
+chmod +x database/init_db.sh
+chmod +x docker-entrypoint.sh
+
+# 确保数据库目录存在并设置正确的权限
+if [ -d "/var/lib/mysql" ]; then
+    chmod -R 777 /var/lib/mysql
+fi
+
+# 设置SELinux上下文（如果系统启用了SELinux）
+if command -v semanage &> /dev/null; then
+    semanage fcontext -a -t container_file_t "/var/lib/mysql(/.*)?"
+    restorecon -R /var/lib/mysql
+fi
+
+# 添加当前用户到docker组
+if ! groups | grep -q docker; then
+    usermod -aG docker $USER
+fi
 
 # 预拉取基础镜像
 echo -e "${YELLOW}预拉取基础镜像...${NC}"

@@ -9,15 +9,26 @@ NC='\033[0m'
 echo -e "${YELLOW}开始初始化数据库...${NC}"
 
 # 等待MySQL服务就绪
+max_retries=30
+count=0
+
 until mysqladmin ping -h"db" -u"$DB_USER" -p"$DB_PASSWORD" --silent; do
     echo -e "${YELLOW}等待数据库服务就绪...${NC}"
-    sleep 2
+    count=$((count+1))
+    if [ $count -gt $max_retries ]; then
+        echo -e "${RED}数据库服务启动超时！${NC}"
+        exit 1
+    fi
+    sleep 5
 done
 
 echo -e "${GREEN}数据库服务已就绪${NC}"
 
 # 创建数据库和用户
 mysql -h"db" -u"$DB_USER" -p"$DB_PASSWORD" <<EOF
+SET NAMES utf8mb4;
+SET FOREIGN_KEY_CHECKS = 0;
+
 CREATE DATABASE IF NOT EXISTS $DB_NAME CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 USE $DB_NAME;
 
@@ -114,11 +125,13 @@ END//
 
 DELIMITER ;
 
+SET FOREIGN_KEY_CHECKS = 1;
 EOF
 
 # 检查执行结果
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}数据库初始化成功！${NC}"
+    chmod -R 777 /var/lib/mysql
 else
     echo -e "${RED}数据库初始化失败！${NC}"
     exit 1

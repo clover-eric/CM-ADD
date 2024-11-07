@@ -14,16 +14,17 @@ services:
       - mysql_data:/var/lib/mysql
       - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u${DB_USER}", "-p${DB_PASSWORD}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u$$MYSQL_USER", "-p$$MYSQL_PASSWORD"]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 30s
     command: 
-      - --authentication-policy=mysql_native_password
+      - --default-authentication-plugin=mysql_native_password
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
-      - --default-time-zone=+08:00
+      - --skip-name-resolve
+      - --max-connections=1000
 
   web:
     build: .
@@ -41,12 +42,6 @@ services:
       - FLASK_ENV=${FLASK_ENV}
       - MAX_CONTENT_LENGTH=${MAX_CONTENT_LENGTH}
       - TZ=Asia/Shanghai
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:6789/health"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
     depends_on:
       db:
         condition: service_healthy

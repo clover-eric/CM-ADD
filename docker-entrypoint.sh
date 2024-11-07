@@ -11,6 +11,8 @@ do
     count=$((count+1))
     if [ $count -gt $max_retries ]; then
         echo "Error: Timed out waiting for database"
+        echo "Database logs:"
+        docker logs cm-add-db-1
         exit 1
     fi
     sleep 5
